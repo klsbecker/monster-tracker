@@ -1,0 +1,130 @@
+{
+  "users": [
+    "Klaus Becker",
+    "Luigi Salvatore",
+    "Leandro Noronha",
+    "Bruno Berwanger",
+    "Lucas Cecatto",
+    "Leonardo Dutra",
+    "Lucas Scherer",
+    "Henrique Colling"
+  ],
+  "flavors": [
+    {
+      "name": "Assault",
+      "image": "assault.png"
+    },
+    {
+      "name": "Original Blue",
+      "image": "original_blue.png"
+    },
+    {
+      "name": "Aussie Lemonade",
+      "image": "juiced-aussie_lemonade.png"
+    },
+    {
+      "name": "Original Green",
+      "image": "original_green.png"
+    },
+    {
+      "name": "Bad Apple",
+      "image": "juiced-bad_apple.png"
+    },
+    {
+      "name": "Original Zero",
+      "image": "original_green_zero.png"
+    },
+    {
+      "name": "Khaotic",
+      "image": "juiced-khaotic.png"
+    },
+    {
+      "name": "The Doctor",
+      "image": "the_doctor.png"
+    },
+    {
+      "name": "Mango Loco",
+      "image": "juiced-mango_loco.png"
+    },
+    {
+      "name": "Ultra Black",
+      "image": "ultra-black.png"
+    },
+    {
+      "name": "Mixxd",
+      "image": "juiced-mixxd.png"
+    },
+    {
+      "name": "Ultra Fiesta",
+      "image": "ultra-fiesta_mango.png"
+    },
+    {
+      "name": "Monarch",
+      "image": "juiced-monarch.png"
+    },
+    {
+      "name": "Ultra Gold",
+      "image": "ultra-gold.png"
+    },
+    {
+      "name": "Pacific Punch",
+      "image": "juiced-pacific_punch.png"
+    },
+    {
+      "name": "Ultra Paradise",
+      "image": "ultra-paradise.png"
+    },
+    {
+      "name": "Pipeline Punch",
+      "image": "juiced-pipeline_punch.png"
+    },
+    {
+      "name": "Ultra Peachy Keen",
+      "image": "ultra-peachy_keen.png"
+    },
+    {
+      "name": "Ripper",
+      "image": "juiced-ripper.png"
+    },
+    {
+      "name": "Ultra Rosa",
+      "image": "ultra-rosa.png"
+    },
+    {
+      "name": "Lewis Hamilton",
+      "image": "lewis_hamilton.png"
+    },
+    {
+      "name": "Ultra White",
+      "image": "ultra-white.png"
+    },
+    {
+      "name": "Mule",
+      "image": "mule.png"
+    },
+    {
+      "name": "Ultra Watermelon",
+      "image": "ultra-watermelon.png"
+    },
+    {
+      "name": "Nitro",
+      "image": "nitro.png"
+    },
+    {
+      "name": "Watermelon",
+      "image": "watermelon.png"
+    },
+    {
+      "name": "Orange Dreamsicle",
+      "image": "orange_dreamsicle.png"
+    },
+    {
+      "name": "White Pineapple",
+      "image": "white_pineapple.png"
+    },
+    {
+      "name": "Rio Punch",
+      "image": "rio_punch.png"
+    }
+  ]
+}

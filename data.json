@@ -1,0 +1,88 @@
+{
+  "entries": [
+    {
+      "id": 1776167792004,
+      "name": "Klaus Becker",
+      "date": "2026-04-13",
+      "flavor": "Ultra White",
+      "createdAt": "2026-04-14T11:56:32.004Z"
+    },
+    {
+      "id": 1776167807091,
+      "name": "Klaus Becker",
+      "date": "2026-04-14",
+      "flavor": "Ultra Fiesta",
+      "createdAt": "2026-04-14T11:56:47.091Z"
+    },
+    {
+      "id": 1776167871552,
+      "name": "Luigi Salvatore",
+      "date": "2026-04-13",
+      "flavor": "Ultra White",
+      "createdAt": "2026-04-14T11:57:51.552Z"
+    },
+    {
+      "id": 1776167884095,
+      "name": "Luigi Salvatore",
+      "date": "2026-04-14",
+      "flavor": "Pipeline Punch",
+      "createdAt": "2026-04-14T11:58:04.095Z"
+    },
+    {
+      "id": 1776172072254,
+      "name": "Leandro Noronha",
+      "date": "2026-04-14",
+      "flavor": "Ultra Fiesta",
+      "createdAt": "2026-04-14T13:07:52.254Z"
+    },
+    {
+      "id": 1776172081387,
+      "name": "Leandro Noronha",
+      "date": "2026-04-13",
+      "flavor": "Ultra Fiesta",
+      "createdAt": "2026-04-14T13:08:01.388Z"
+    },
+    {
+      "id": 1776189911107,
+      "name": "Henrique Colling",
+      "date": "2026-04-13",
+      "flavor": "Ultra White",
+      "createdAt": "2026-04-14T18:05:11.107Z"
+    },
+    {
+      "id": 1776189938788,
+      "name": "Henrique Colling",
+      "date": "2026-04-14",
+      "flavor": "Ultra White",
+      "createdAt": "2026-04-14T18:05:38.788Z"
+    },
+    {
+      "id": 1776190985176,
+      "name": "Leonardo Dutra",
+      "date": "2026-04-13",
+      "flavor": "Ultra Fiesta",
+      "createdAt": "2026-04-14T18:23:05.176Z"
+    },
+    {
+      "id": 1776250925429,
+      "name": "Bruno Berwanger",
+      "date": "2026-04-15",
+      "flavor": "Original Green",
+      "createdAt": "2026-04-15T11:02:05.429Z"
+    },
+    {
+      "id": 1776256566649,
+      "name": "Klaus Becker",
+      "date": "2026-04-15",
+      "flavor": "Ultra Fiesta",
+      "createdAt": "2026-04-15T12:36:06.649Z"
+    },
+    {
+      "id": 1776257547722,
+      "name": "Luigi Salvatore",
+      "date": "2026-04-15",
+      "flavor": "Rio Punch",
+      "createdAt": "2026-04-15T12:52:27.722Z"
+    }
+  ]
+}

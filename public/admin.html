@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Monster Tracker · Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0a;
+  --card: #121212;
+  --border: #2a2a2a;
+  --text: #ececec;
+  --muted: #8f8f8f;
+  --green: #39ff14;
+  --red: #e24b4a;
+}
+body {
+  min-height: 100vh;
+  background: radial-gradient(1200px 600px at 50% -250px, rgba(57,255,20,0.08), transparent 60%), var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  padding: 24px 14px 48px;
+}
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+}
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 2px;
+  font-size: clamp(42px, 8vw, 62px);
+  color: var(--green);
+  line-height: 0.9;
+}
+.subtitle { color: var(--muted); font-size: 13px; }
+.back {
+  color: var(--muted);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 12px;
+}
+@media(max-width:900px){ .grid { grid-template-columns: 1fr; } }
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+}
+.section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.row { display: flex; gap: 8px; }
+input {
+  width: 100%;
+  background: #0e0e0e;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+}
+button {
+  border: none;
+  border-radius: 8px;
+  background: var(--green);
+  color: #000;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 10px 14px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+button.ghost {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+}
+button.danger {
+  background: transparent;
+  border: 1px solid #5a2525;
+  color: #ff9c9c;
+}
+.status {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.users {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+.user-item, .entry-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 10px;
+}
+.user-name { font-size: 13px; }
+.entry-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 620px;
+  overflow: auto;
+}
+.entry-main { font-size: 13px; }
+.entry-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.hidden { display: none !important; }
+.empty {
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+.notice {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.flavor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  max-height: 470px;
+  overflow: auto;
+}
+.flavor-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 10px;
+}
+.flavor-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.flavor-main img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+.meta { font-size: 12px; color: var(--muted); }
+.admin-sections-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+@media(max-width:980px){
+  .admin-sections-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="head">
+    <div>
+      <div class="title">ADMIN</div>
+      <div class="subtitle">Usuários e histórico</div>
+    </div>
+    <a class="back" href="/">Voltar ao tracker</a>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="section-title">Sessão</div>
+      <div id="login-wrap">
+        <div class="row" style="flex-direction:column;">
+          <input id="inp-user" type="text" placeholder="Usuário admin" autocomplete="username" />
+          <input id="inp-pass" type="password" placeholder="Senha" autocomplete="current-password" />
+          <button type="button" onclick="login()">Entrar</button>
+        </div>
+      </div>
+      <div id="session-wrap" class="hidden">
+        <div class="status" id="session-status">Conectado</div>
+        <div class="row" style="margin-top:10px;">
+          <button class="ghost" type="button" onclick="refreshAll()">Atualizar</button>
+          <button class="ghost" type="button" onclick="logout()">Sair</button>
+        </div>
+      </div>
+      <div class="notice">Somente usuários autenticados podem adicionar/remover usuários e remover histórico.</div>
+    </div>
+
+    <div class="card hidden" id="users-card">
+      <div class="section-title">Usuários</div>
+      <div class="row">
+        <input id="inp-new-user" type="text" placeholder="Novo usuário" />
+        <button type="button" onclick="addUser()">Adicionar</button>
+      </div>
+      <div class="users" id="users-list"></div>
+    </div>
+  </div>
+
+  <div id="admin-sections" class="admin-sections-grid hidden">
+    <div class="card">
+    <div class="section-title">Sabores</div>
+    <div class="row" style="flex-direction:column;">
+      <input id="inp-new-flavor" type="text" placeholder="Nome do sabor" />
+      <input id="inp-new-flavor-png" type="file" accept=".png,image/png" />
+      <button type="button" onclick="addFlavor()">Adicionar sabor</button>
+    </div>
+    <div class="notice">Upload aceita apenas PNG. Se não enviar imagem, o sabor fica sem lata.</div>
+    <div class="flavor-list" id="flavors-list"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Histórico</div>
+      <div class="entry-list" id="entries-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+let isAdmin = false;
+let adminName = '';
+let users = [];
+let flavors = [];
+let entries = [];
+
+async function apiFetch(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin'
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+function getAddedTime(entry) {
+  const created = entry.createdAt ? Date.parse(entry.createdAt) : NaN;
+  if (!Number.isNaN(created)) return created;
+  return Number.isFinite(entry.id) ? entry.id : 0;
+}
+
+function fmtDate(date) {
+  return new Date(date + 'T12:00:00').toLocaleDateString('pt-BR', {
+    day: '2-digit', month: '2-digit', year: 'numeric'
+  });
+}
+
+function renderSession() {
+  const usersCard = document.getElementById('users-card');
+  const adminSections = document.getElementById('admin-sections');
+  document.getElementById('login-wrap').classList.toggle('hidden', isAdmin);
+  document.getElementById('session-wrap').classList.toggle('hidden', !isAdmin);
+  document.getElementById('session-status').textContent = isAdmin ? `Logado como ${adminName}.` : 'Desconectado';
+  if (usersCard) usersCard.classList.toggle('hidden', !isAdmin);
+  if (adminSections) adminSections.classList.toggle('hidden', !isAdmin);
+}
+
+function renderUsers() {
+  const el = document.getElementById('users-list');
+  if (!isAdmin) {
+    el.innerHTML = '<div class="empty">Faça login para ver e editar usuários.</div>';
+    return;
+  }
+
+  if (!users.length) {
+    el.innerHTML = '<div class="empty">Nenhum usuário cadastrado.</div>';
+    return;
+  }
+
+  el.innerHTML = '';
+  users.forEach(name => {
+    const row = document.createElement('div');
+    row.className = 'user-item';
+    row.innerHTML = `<div class="user-name">${name}</div><button class="danger" type="button">Remover</button>`;
+    row.querySelector('button').onclick = () => removeUser(name);
+    el.appendChild(row);
+  });
+}
+
+function renderEntries() {
+  const el = document.getElementById('entries-list');
+  if (!isAdmin) {
+    el.innerHTML = '<div class="empty">Faça login para ver histórico e remover registros.</div>';
+    return;
+  }
+
+  const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date) || getAddedTime(b) - getAddedTime(a));
+  if (!sorted.length) {
+    el.innerHTML = '<div class="empty">Sem registros ainda.</div>';
+    return;
+  }
+
+  el.innerHTML = '';
+  sorted.forEach(entry => {
+    const row = document.createElement('div');
+    row.className = 'entry-item';
+    row.innerHTML = `<div><div class="entry-main">${entry.name} · ${entry.flavor}</div><div class="entry-sub">${fmtDate(entry.date)}</div></div><button class="danger" type="button">Remover</button>`;
+    row.querySelector('button').onclick = () => removeEntry(entry.id);
+    el.appendChild(row);
+  });
+}
+
+function renderFlavors() {
+  const el = document.getElementById('flavors-list');
+  if (!isAdmin) {
+    el.innerHTML = '<div class="empty">Faça login para gerenciar sabores.</div>';
+    return;
+  }
+
+  if (!flavors.length) {
+    el.innerHTML = '<div class="empty">Nenhum sabor cadastrado.</div>';
+    return;
+  }
+
+  el.innerHTML = '';
+  flavors.forEach(flavor => {
+    const imgTag = flavor.image ? `<img src="/cans/${flavor.image}" alt="${flavor.name}" />` : '';
+    const imgMeta = flavor.image ? flavor.image : 'sem imagem';
+    const row = document.createElement('div');
+    row.className = 'flavor-item';
+    row.innerHTML = `<div class="flavor-main">${imgTag}<div><div class="user-name">${flavor.name}</div><div class="meta">${imgMeta}</div></div></div><button class="danger" type="button">Remover</button>`;
+    row.querySelector('button').onclick = () => removeFlavor(flavor.name);
+    el.appendChild(row);
+  });
+}
+
+function renderAll() {
+  renderSession();
+  renderUsers();
+  renderFlavors();
+  renderEntries();
+}
+
+async function loadSession() {
+  try {
+    const me = await apiFetch('GET', '/api/admin/me');
+    isAdmin = !!me.authenticated;
+    adminName = me.username || 'admin';
+  } catch {
+    isAdmin = false;
+    adminName = '';
+  }
+}
+
+async function loadUsers() {
+  if (!isAdmin) {
+    users = [];
+    return;
+  }
+
+  const data = await apiFetch('GET', '/api/admin/users');
+  users = Array.isArray(data.users) ? data.users : [];
+}
+
+async function loadFlavors() {
+  if (!isAdmin) {
+    flavors = [];
+    return;
+  }
+
+  const data = await apiFetch('GET', '/api/admin/flavors');
+  flavors = Array.isArray(data.flavors) ? data.flavors : [];
+}
+
+async function loadEntries() {
+  if (!isAdmin) {
+    entries = [];
+    return;
+  }
+
+  entries = await apiFetch('GET', '/api/admin/entries');
+}
+
+async function refreshAll() {
+  try {
+    await loadSession();
+    await loadUsers();
+    await loadFlavors();
+    await loadEntries();
+    renderAll();
+  } catch {
+    renderAll();
+  }
+}
+
+async function login() {
+  const username = document.getElementById('inp-user').value.trim();
+  const password = document.getElementById('inp-pass').value;
+  if (!username || !password) return;
+
+  try {
+    await apiFetch('POST', '/api/admin/login', { username, password });
+    document.getElementById('inp-pass').value = '';
+    await refreshAll();
+  } catch {
+    alert('Falha no login.');
+  }
+}
+
+async function logout() {
+  try {
+    await apiFetch('POST', '/api/admin/logout');
+  } catch {
+    // no-op
+  }
+  await refreshAll();
+}
+
+async function addUser() {
+  if (!isAdmin) return;
+  const input = document.getElementById('inp-new-user');
+  const name = input.value.trim();
+  if (!name) return;
+
+  try {
+    await apiFetch('POST', '/api/admin/users', { name });
+    input.value = '';
+    await refreshAll();
+  } catch {
+    alert('Não foi possível adicionar usuário.');
+  }
+}
+
+async function addFlavor() {
+  if (!isAdmin) return;
+  const nameInput = document.getElementById('inp-new-flavor');
+  const fileInput = document.getElementById('inp-new-flavor-png');
+  const name = nameInput.value.trim();
+  if (!name) return;
+
+  const form = new FormData();
+  form.append('name', name);
+  if (fileInput.files && fileInput.files[0]) {
+    form.append('image', fileInput.files[0]);
+  }
+
+  try {
+    const res = await fetch('/api/admin/flavors', {
+      method: 'POST',
+      body: form,
+      credentials: 'same-origin'
+    });
+    if (!res.ok) throw new Error(await res.text());
+
+    nameInput.value = '';
+    fileInput.value = '';
+    await refreshAll();
+  } catch {
+    alert('Não foi possível adicionar sabor.');
+  }
+}
+
+async function removeUser(name) {
+  if (!isAdmin) return;
+  if (!confirm(`Remover usuário "${name}"?`)) return;
+
+  try {
+    await apiFetch('DELETE', `/api/admin/users/${encodeURIComponent(name)}`);
+    await refreshAll();
+  } catch {
+    alert('Não foi possível remover usuário.');
+  }
+}
+
+async function removeFlavor(name) {
+  if (!isAdmin) return;
+  if (!confirm(`Remover sabor "${name}"?`)) return;
+
+  try {
+    await apiFetch('DELETE', `/api/admin/flavors/${encodeURIComponent(name)}`);
+    await refreshAll();
+  } catch {
+    alert('Não foi possível remover sabor.');
+  }
+}
+
+async function removeEntry(id) {
+  if (!isAdmin) return;
+  if (!confirm('Remover este registro do histórico?')) return;
+
+  try {
+    await apiFetch('DELETE', `/api/entries/${id}`);
+    await refreshAll();
+  } catch {
+    alert('Não foi possível remover registro.');
+  }
+}
+
+refreshAll();
+</script>
+</body>
+</html>

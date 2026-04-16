@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Monster Tracker · Software Embarcado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green: #39ff14;
+  --green-dim: #1a7a0a;
+  --dark: #0a0a0a;
+  --card: #111;
+  --border: #2a2a2a;
+  --text: #e8e8e8;
+  --muted: #888;
+}
+html, body { min-height: 100vh; }
+body {
+  background: var(--dark);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  padding-bottom: 200px;
+}
+
+/* ── CAN STACK ────────────────────────────────── */
+#can-stack {
+  position: fixed;
+  bottom: 0; left: 0;
+  width: 100%; height: 220px;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+#stack-dim {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.62) 0%,
+    rgba(0, 0, 0, 0.45) 24%,
+    rgba(0, 0, 0, 0.22) 48%,
+    rgba(0, 0, 0, 0) 78%
+  );
+}
+body > *:not(#can-stack):not(#stack-dim) {
+  position: relative;
+  z-index: 2;
+}
+#can-stack::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 70px;
+  background: linear-gradient(to bottom, var(--dark), transparent);
+  z-index: 2;
+}
+.can {
+  position: absolute;
+  width: 70px;
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,0.8));
+  opacity: 0;
+}
+.can.drop {
+  animation: canDrop 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+.can.settled {
+  opacity: 1;
+  transition: none;
+}
+@keyframes canDrop {
+  0%   { transform: translateY(-200px) rotate(var(--rot)) scale(0.8); opacity: 0; }
+  65%  { transform: translateY(6px) rotate(var(--rot)) scale(1.04); opacity: 0.45; }
+  82%  { transform: translateY(-3px) rotate(var(--rot)) scale(0.98); }
+  100% { transform: translateY(0) rotate(var(--rot)) scale(1); opacity: 0.45; }
+}
+
+/* ── HERO ─────────────────────────────────────── */
+.hero {
+  text-align: center;
+  padding: 2.5rem 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%; transform: translateX(-50%);
+  width: 400px; height: 200px;
+  background: radial-gradient(ellipse, rgba(57,255,20,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.claw {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(64px,14vw,110px);
+  color: var(--green); letter-spacing: 4px; line-height: 1;
+  text-shadow: 0 0 40px rgba(57,255,20,0.35);
+}
+.hero-sub { font-size: 13px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-top: 4px; }
+.month-display { margin-top: 1.2rem; font-size: clamp(15px,3vw,20px); color: var(--text); }
+.month-display strong { color: var(--green); font-weight: 500; }
+.record-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #1a1a1a; border: 1px solid var(--border);
+  border-radius: 20px; padding: 6px 14px;
+  font-size: 13px; color: var(--muted); margin-top: 10px;
+}
+.record-badge strong { color: var(--text); }
+
+/* ── TABS ─────────────────────────────────────── */
+.tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 1rem; gap: 4px; }
+.tab {
+  padding: 12px 18px; font-size: 13px; letter-spacing: 1px;
+  text-transform: uppercase; font-family: 'DM Sans', sans-serif;
+  background: none; border: none; border-bottom: 2px solid transparent;
+  color: var(--muted); cursor: pointer; transition: all 0.15s; margin-bottom: -1px;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--green); border-bottom-color: var(--green); }
+.panel { display: none; padding: 1.5rem 1rem; max-width: 860px; margin: 0 auto; }
+.panel.active { display: block; }
+
+/* ── FORM ─────────────────────────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width:520px){ .form-grid { grid-template-columns: 1fr; } }
+.field label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 6px; }
+.field input, .field select {
+  width: 100%; background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px; font-size: 14px;
+  color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus { border-color: var(--green-dim); }
+.field select option { background: #1a1a1a; }
+.btn-add {
+  margin-top: 16px; width: 100%; background: var(--green); color: #000;
+  border: none; border-radius: 8px; padding: 12px; font-size: 14px;
+  font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer;
+  letter-spacing: 1px; text-transform: uppercase; transition: opacity 0.15s;
+}
+.btn-add:hover { opacity: 0.85; }
+.btn-add:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── FLAVOR CHIPS ─────────────────────────────── */
+.flavor-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; margin-bottom: 16px; }
+.chip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: 20px; font-size: 12px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--card); color: var(--muted); transition: all 0.1s;
+}
+.chip img { width: 22px; height: 22px; object-fit: contain; }
+.chip:hover, .chip.sel { background: var(--green); color: #000; border-color: var(--green); }
+.chip.sel img { filter: brightness(0); }
+
+/* ── STATS ────────────────────────────────────── */
+.stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 1.5rem; }
+@media(max-width:480px){ .stats-grid { grid-template-columns: 1fr 1fr; } }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 6px; }
+.stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--green); letter-spacing: 1px; line-height: 1; }
+.stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.bar-name { width: 130px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 5px; }
+.bar-name img { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
+.bar-track { flex: 1; background: #1c1c1c; border-radius: 4px; height: 24px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--green); border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 12px; color: #000; font-weight: 500; transition: width 0.4s; min-width: 28px; }
+.bar-fill.s2 { background: #2a6e20; color: var(--text); }
+.bar-fill.s3 { background: #1a3a14; color: var(--muted); }
+
+/* ── LOG ──────────────────────────────────────── */
+.log-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
+.log-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--green-dim); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: var(--green); flex-shrink: 0; }
+.log-info { flex: 1; }
+.log-name { font-weight: 500; color: var(--text); }
+.log-detail { font-size: 12px; color: var(--muted); }
+.log-flavor { display: flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 8px; border-radius: 12px; background: #1a1a1a; border: 1px solid var(--border); color: var(--muted); white-space: nowrap; }
+.log-flavor img { width: 18px; height: 18px; object-fit: contain; }
+.empty { text-align: center; padding: 2rem; color: var(--muted); font-size: 14px; }
+.month-filter { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.mf-btn { padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--muted); transition: all 0.1s; }
+.mf-btn.active { border-color: var(--green); color: var(--green); }
+.toast { position: fixed; bottom: 230px; left: 50%; transform: translateX(-50%); padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div id="can-stack"></div>
+<div id="stack-dim"></div>
+
+<div class="hero">
+  <div class="claw" id="counter-main">0</div>
+  <div class="hero-sub">Software Embarcado · Monster Tracker</div>
+  <div class="month-display" id="month-phrase">Carregando...</div>
+  <div class="record-badge">♛ Recorde: <strong id="record-display">—</strong></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('register',this)">+ Registrar</button>
+  <button class="tab" onclick="switchTab('dashboard',this)">Painel</button>
+  <button class="tab" onclick="switchTab('log',this)">Histórico</button>
+</div>
+
+<div id="tab-register" class="panel active">
+  <div class="form-grid">
+    <div class="field"><label>Quem tomou</label><select id="inp-name"><option value="">Selecione um nome</option></select></div>
+    <div class="field"><label>Data</label><input type="date" id="inp-date" /></div>
+  </div>
+  <div style="margin-top:14px;">
+    <div class="section-title" style="margin-bottom:8px;">Sabor do Monster</div>
+    <div class="flavor-chips" id="flavor-chips"></div>
+    <input type="text" id="flavor-custom" placeholder="Nome do sabor..." style="display:none;width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;margin-top:4px;" />
+  </div>
+  <button class="btn-add" id="btn-add" onclick="addEntry()">Registrar Monster</button>
+</div>
+
+<div id="tab-dashboard" class="panel">
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">Mês atual</div><div class="stat-value" id="stat-month">0</div><div class="stat-sub" id="stat-month-name">—</div></div>
+    <div class="stat-card"><div class="stat-label">Total geral</div><div class="stat-value" id="stat-total">0</div><div class="stat-sub">monsters</div></div>
+    <div class="stat-card"><div class="stat-label">Recorde</div><div class="stat-value" id="stat-record">0</div><div class="stat-sub" id="stat-record-month">—</div></div>
+  </div>
+  <div class="section-title">Quem mais tomou</div><div id="chart-people" style="margin-bottom:1.5rem;"></div>
+  <div class="section-title">Monsters mais tomados</div><div id="chart-flavors" style="margin-bottom:1.5rem;"></div>
+  <div class="section-title">Histórico por mês</div><div id="chart-months"></div>
+</div>
+
+<div id="tab-log" class="panel">
+  <div class="month-filter" id="month-filter-btns"></div>
+  <div id="log-list"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────
+const API  = '';       // '' = mesmo servidor; ou 'http://ip:porta'
+const IMGS = '/cans';  // pasta dos PNGs dentro de public/
+
+let allowedUsers = [];
+let FLAVOR_MAP   = {};
+let FLAVOR_LABELS = Object.keys(FLAVOR_MAP);
+
+function canImg(flavor) {
+  const f = FLAVOR_MAP[flavor];
+  return f ? `${IMGS}/${f}` : null;
+}
+
+// ── STATE ────────────────────────────────────────────────────────
+let selectedFlavor = '';
+let filterMonth    = 'all';
+let allEntries     = [];
+
+function normalizeFlavorMap(flavors) {
+  if (!Array.isArray(flavors)) return {};
+  const map = {};
+  flavors.forEach(f => {
+    if (f && typeof f.name === 'string') {
+      map[f.name] = (typeof f.image === 'string' && f.image.trim()) ? f.image.trim() : null;
+    }
+  });
+  return Object.keys(map).length ? map : {};
+}
+
+function buildUserOptions() {
+  const select = document.getElementById('inp-name');
+  if (!select) return;
+  select.innerHTML = '<option value="">Selecione um nome</option>';
+  allowedUsers.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    select.appendChild(opt);
+  });
+
+  if (select.value && !allowedUsers.includes(select.value)) {
+    select.value = '';
+  }
+}
+
+async function loadParameters() {
+  try {
+    const params = await apiFetch('GET', '/api/parameters');
+    allowedUsers = Array.isArray(params.users)
+      ? params.users.filter(u => typeof u === 'string' && u.trim()).map(u => u.trim())
+      : [];
+    FLAVOR_MAP = normalizeFlavorMap(params.flavors);
+  } catch {
+    allowedUsers = [];
+    FLAVOR_MAP = [];
+  }
+
+  FLAVOR_LABELS = Object.keys(FLAVOR_MAP);
+
+  buildUserOptions();
+  buildFlavorChips();
+}
+
+// ── API ──────────────────────────────────────────────────────────
+async function apiFetch(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin' };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+async function loadEntries() {
+  try {
+    allEntries = await apiFetch('GET', '/api/entries');
+    updateAll();
+    renderStack(false);
+  } catch(e) {
+    document.getElementById('month-phrase').textContent = 'Erro ao conectar com o servidor';
+  }
+}
+
+async function addEntry() {
+  const name = document.getElementById('inp-name').value.trim();
+  const date = document.getElementById('inp-date').value;
+  let flavor = selectedFlavor;
+  if (flavor === 'Outro') flavor = document.getElementById('flavor-custom').value.trim() || 'Outro';
+  if (!name)   { showToast('Coloca o nome!', true); return; }
+  if (!date)   { showToast('Coloca a data!', true); return; }
+  if (!flavor) { showToast('Seleciona o sabor!', true); return; }
+
+  const btn = document.getElementById('btn-add');
+  btn.disabled = true;
+  try {
+    const entry = await apiFetch('POST', '/api/entries', { name, date, flavor });
+    allEntries.push(entry);
+    updateAll();
+    renderStack(true);
+    document.getElementById('inp-name').value = '';
+    selectedFlavor = '';
+    document.getElementById('flavor-custom').value = '';
+    document.getElementById('flavor-custom').style.display = 'none';
+    buildFlavorChips();
+    showToast('Monster registrado! 🥤');
+  } catch(e) { showToast('Erro ao salvar', true); }
+  btn.disabled = false;
+}
+
+// ── CAN STACK ────────────────────────────────────────────────────
+// Layout: cans are placed in columns across the screen width.
+// Each "slot" is ~56px wide. Cans are positioned at the bottom
+// with slight vertical offsets per row to create a stacking illusion.
+
+function seededRand(seed) {
+  // simple deterministic pseudo-random 0..1 from integer seed
+  const x = Math.sin(seed + 1) * 43758.5453123;
+  return x - Math.floor(x);
+}
+
+function renderStack(animateNew) {
+  const stack = document.getElementById('can-stack');
+  const vw    = window.innerWidth;
+  const cmk   = currentMonthKey();
+
+  // Only entries this month that have an image
+  const cans = allEntries
+    .filter(e => getMonthKeyShort(e.date) === cmk && canImg(e.flavor))
+    .sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
+
+  // Remove all settled cans and rebuild
+  Array.from(stack.querySelectorAll('.can')).forEach(el => el.remove());
+
+  const CAN_W  = 68;
+  const SLOT_W = 52;   // horizontal spacing (overlap)
+  const cols   = Math.max(1, Math.floor(vw / SLOT_W));
+
+  cans.forEach((entry, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+
+    const r1 = seededRand(entry.id);
+    const r2 = seededRand(entry.id + 1000);
+
+    // x: column position + small jitter
+    const xBase  = col * SLOT_W + (SLOT_W - CAN_W) / 2;
+    const xJitter = (r1 - 0.5) * 14;
+    const x = Math.min(Math.max(xBase + xJitter, 4), vw - CAN_W - 4);
+
+    // tilt: ±12 deg
+    const tilt = (r2 - 0.5) * 24;
+
+    // bottom: row 0 sits at 4px from bottom; each extra row stacks 10px higher
+    const bottom = 4 + row * 10;
+
+    const isNew = animateNew && i === cans.length - 1;
+
+    const img = document.createElement('img');
+    img.className = 'can' + (isNew ? ' drop' : ' settled');
+    img.src = canImg(entry.flavor);
+    img.alt = entry.flavor;
+    img.title = `${entry.name} · ${entry.flavor} · ${formatDate(entry.date)}`;
+    img.style.cssText = `
+      left:${x}px;
+      bottom:${bottom}px;
+      width:${CAN_W}px;
+      transform:rotate(${tilt}deg);
+      --rot:${tilt}deg;
+    `;
+
+    if (isNew) {
+      img.addEventListener('animationend', () => {
+        img.classList.remove('drop');
+        img.classList.add('settled');
+      }, { once: true });
+    }
+
+    stack.appendChild(img);
+  });
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function getMonthKeyShort(d) { return d.slice(0, 7); }
+function getMonthLabel(key) {
+  const [y, m] = key.split('-');
+  return new Date(+y, +m - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+}
+function currentMonthKey() {
+  const n = new Date();
+  return n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0');
+}
+function initials(name) { return name.trim().split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(); }
+function formatDate(d) { return new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }); }
+
+// ── UPDATE ───────────────────────────────────────────────────────
+function updateAll() {
+  const data = allEntries;
+  const cmk  = currentMonthKey();
+  const count = data.filter(e => getMonthKeyShort(e.date) === cmk).length;
+
+  const byMonth = {};
+  data.forEach(e => { const k = getMonthKeyShort(e.date); byMonth[k] = (byMonth[k] || 0) + 1; });
+  let recCount = 0, recKey = '';
+  Object.entries(byMonth).forEach(([k, v]) => { if (v > recCount) { recCount = v; recKey = k; } });
+
+  document.getElementById('counter-main').textContent = count;
+  const lbl = getMonthLabel(cmk);
+  document.getElementById('month-phrase').innerHTML =
+    `Estamos no <strong>${count}º</strong> monster do mês de <strong>${lbl}</strong>`;
+  document.getElementById('record-display').textContent =
+    recCount ? `${recCount} monsters — ${getMonthLabel(recKey)}` : '—';
+
+  document.getElementById('stat-month').textContent     = count;
+  document.getElementById('stat-month-name').textContent = lbl;
+  document.getElementById('stat-total').textContent      = data.length;
+  document.getElementById('stat-record').textContent     = recCount || 0;
+  document.getElementById('stat-record-month').textContent = recKey ? getMonthLabel(recKey) : '—';
+
+  buildPeopleChart(data);
+  buildFlavorChart(data);
+  buildMonthChart(byMonth);
+  buildLog(data);
+  buildMonthFilter(byMonth);
+}
+
+// ── CHARTS ───────────────────────────────────────────────────────
+function buildBar(label, val, max, rank, container) {
+  const pct = max ? Math.round((val / max) * 100) : 0;
+  const cls = rank === 0 ? '' : rank === 1 ? 's2' : 's3';
+  const img = canImg(label);
+  const thumb = img ? `<img src="${img}" />` : '';
+  const row = document.createElement('div');
+  row.className = 'bar-row';
+  row.innerHTML = `<div class="bar-name">${thumb}<span title="${label}">${label}</span></div>
+    <div class="bar-track"><div class="bar-fill ${cls}" style="width:${Math.max(pct,4)}%">${val}</div></div>`;
+  container.appendChild(row);
+}
+function buildPeopleChart(data) {
+  const c = {}; data.forEach(e => { c[e.name] = (c[e.name]||0)+1; });
+  const s = Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const el = document.getElementById('chart-people');
+  el.innerHTML = s.length ? '' : '<div class="empty">Sem dados ainda</div>';
+  s.forEach(([n,v],i) => buildBar(n, v, s[0][1], i, el));
+}
+function buildFlavorChart(data) {
+  const c = {}; data.forEach(e => { c[e.flavor] = (c[e.flavor]||0)+1; });
+  const s = Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const el = document.getElementById('chart-flavors');
+  el.innerHTML = s.length ? '' : '<div class="empty">Sem dados ainda</div>';
+  s.forEach(([n,v],i) => buildBar(n, v, s[0][1], i, el));
+}
+function buildMonthChart(byMonth) {
+  const s = Object.entries(byMonth).sort((a,b)=>a[0].localeCompare(b[0]));
+  const max = s.reduce((m,[,v])=>Math.max(m,v),1);
+  const el = document.getElementById('chart-months');
+  el.innerHTML = s.length ? '' : '<div class="empty">Sem dados ainda</div>';
+  s.forEach(([k,v],i) => buildBar(getMonthLabel(k), v, max, i, el));
+}
+
+// ── LOG ──────────────────────────────────────────────────────────
+function buildLog(data) {
+  const filtered = filterMonth === 'all' ? data : data.filter(e => getMonthKeyShort(e.date) === filterMonth);
+  const getAddedTime = (entry) => {
+    const created = entry.createdAt ? Date.parse(entry.createdAt) : NaN;
+    if (!Number.isNaN(created)) return created;
+    return Number.isFinite(entry.id) ? entry.id : 0;
+  };
+  const sorted   = [...filtered].sort((a, b) => b.date.localeCompare(a.date) || getAddedTime(a) - getAddedTime(b));
+  const c = document.getElementById('log-list');
+  if (!sorted.length) { c.innerHTML = '<div class="empty">Nenhum registro ainda</div>'; return; }
+  c.innerHTML = '';
+  sorted.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'log-item';
+    const img = canImg(e.flavor);
+    const thumb = img ? `<img src="${img}" />` : '';
+    div.innerHTML = `<div class="log-avatar">${initials(e.name)}</div>
+      <div class="log-info"><div class="log-name">${e.name}</div><div class="log-detail">${formatDate(e.date)}</div></div>
+      <div class="log-flavor">${thumb}${e.flavor}</div>`;
+    c.appendChild(div);
+  });
+}
+function buildMonthFilter(byMonth) {
+  const c = document.getElementById('month-filter-btns');
+  c.innerHTML = '';
+  const mkAll = document.createElement('button');
+  mkAll.className = 'mf-btn' + (filterMonth==='all'?' active':'');
+  mkAll.textContent = 'Todos';
+  mkAll.onclick = () => { filterMonth='all'; buildMonthFilter(byMonth); buildLog(allEntries); };
+  c.appendChild(mkAll);
+  Object.keys(byMonth).sort().reverse().forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'mf-btn' + (filterMonth===k?' active':'');
+    btn.textContent = getMonthLabel(k);
+    btn.onclick = () => { filterMonth=k; buildMonthFilter(byMonth); buildLog(allEntries); };
+    c.appendChild(btn);
+  });
+}
+
+// ── FLAVOR CHIPS ─────────────────────────────────────────────────
+function buildFlavorChips() {
+  const c = document.getElementById('flavor-chips');
+  c.innerHTML = '';
+  FLAVOR_LABELS.forEach(f => {
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (selectedFlavor===f?' sel':'');
+    const img = canImg(f);
+    chip.innerHTML = (img ? `<img src="${img}" />` : '') + f;
+    chip.onclick = () => {
+      selectedFlavor = f;
+      const cu = document.getElementById('flavor-custom');
+      cu.style.display = f==='Outro' ? 'block' : 'none';
+      if (f==='Outro') cu.focus();
+      buildFlavorChips();
+    };
+    c.appendChild(chip);
+  });
+}
+
+// ── UI ────────────────────────────────────────────────────────────
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+function showToast(msg, err) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = err ? '#e24b4a' : 'var(--green)';
+  t.style.color = err ? '#fff' : '#000';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+document.getElementById('inp-date').value = new Date().toISOString().slice(0,10);
+loadParameters().then(loadEntries);
+window.addEventListener('resize', () => renderStack(false));
+</script>
+</body>
+</html>
