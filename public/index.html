@@ -199,12 +199,12 @@ body > *:not(#can-stack):not(#stack-dim) {
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="switchTab('register',this)">+ Registrar</button>
-  <button class="tab" onclick="switchTab('dashboard',this)">Painel</button>
+  <button class="tab active" onclick="switchTab('dashboard',this)">Painel</button>
+  <button class="tab" onclick="switchTab('register',this)">Registrar</button>
   <button class="tab" onclick="switchTab('log',this)">Histórico</button>
 </div>
 
-<div id="tab-register" class="panel active">
+<div id="tab-register" class="panel">
   <div class="form-grid">
     <div class="field"><label>Quem tomou</label><select id="inp-name"><option value="">Selecione um nome</option></select></div>
     <div class="field"><label>Data</label><input type="date" id="inp-date" /></div>
@@ -217,7 +217,7 @@ body > *:not(#can-stack):not(#stack-dim) {
   <button class="btn-add" id="btn-add" onclick="addEntry()">Registrar Monster</button>
 </div>
 
-<div id="tab-dashboard" class="panel">
+<div id="tab-dashboard" class="panel active">
   <div class="stats-grid">
     <div class="stat-card"><div class="stat-label">Mês atual</div><div class="stat-value" id="stat-month">0</div><div class="stat-sub" id="stat-month-name">—</div></div>
     <div class="stat-card"><div class="stat-label">Total geral</div><div class="stat-value" id="stat-total">0</div><div class="stat-sub">monsters</div></div>
